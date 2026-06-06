@@ -4,12 +4,13 @@ import api from '../services/api';
 const C = { ivory: '#F9F7F3', charcoal: '#1C1C1C', gold: '#C6A664', border: '#E5E1D8', muted: '#858484' };
 
 const PO_STATUS = {
-  draft:        ['#F1F5F9','#475569'],
-  confirmed:    ['#DBEAFE','#1d4ed8'],
-  sent:         ['#FEF3C7','#92400E'],
-  acknowledged: ['#F3E8FF','#7e22ce'],
-  completed:    ['#DCFCE7','#166534'],
-  cancelled:    ['#FEE2E2','#B91C1C'],
+  draft:                 ['#F1F5F9','#475569'],
+  confirmed:             ['#DBEAFE','#1d4ed8'],
+  sent:                  ['#FEF3C7','#92400E'],
+  acknowledged:          ['#F3E8FF','#7e22ce'],
+  partially_delivered:   ['#FDE68A','#D97706'],
+  completed:             ['#DCFCE7','#166534'],
+  cancelled:             ['#FEE2E2','#B91C1C'],
 };
 
 function PODetail({ po, onClose, onUpdate }) {
