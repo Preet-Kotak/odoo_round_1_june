@@ -13,6 +13,9 @@ function VendorModal({ vendor, onClose, onSaved }) {
   const [form, setForm] = useState(vendor || EMPTY_VENDOR);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
+  const [createPortal, setCreatePortal] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const isEdit = !!vendor?._id;
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
@@ -24,14 +27,67 @@ function VendorModal({ vendor, onClose, onSaved }) {
       setErr('Company name, contact person, email, phone and GST are required.');
       return;
     }
+
+    // Validate portal access fields if enabled (only for new vendors)
+    if (!isEdit && createPortal) {
+      if (!password || !confirmPassword) {
+        setErr('Password and confirm password are required for portal access.');
+        return;
+      }
+      if (password.length < 8) {
+        setErr('Password must be at least 8 characters long.');
+        return;
+      }
+      if (password !== confirmPassword) {
+        setErr('Passwords do not match.');
+        return;
+      }
+    }
+
     setSaving(true);
     try {
-      if (isEdit) await api.put(`/vendors/${vendor._id}`, form);
-      else        await api.post('/vendors', form);
+      let linkedUserId = null;
+
+      // Create user account first if portal access is enabled (only for new vendors)
+      if (!isEdit && createPortal) {
+        try {
+          const userRes = await api.post('/auth/signup', {
+            name: form.contactPerson,
+            email: form.email,
+            password: password,
+            role: 'vendor',
+            company: form.companyName,
+            phone: form.phone,
+          });
+          linkedUserId = userRes.data?.user?._id;
+        } catch (userErr) {
+          // Handle user creation errors specifically
+          const userErrMsg = userErr.response?.data?.message || 'Failed to create user account';
+          setErr(`Portal Access Error: ${userErrMsg}`);
+          setSaving(false);
+          return;
+        }
+      }
+
+      // Create or update vendor
+      const vendorData = { ...form };
+      if (linkedUserId) {
+        vendorData.linkedUserId = linkedUserId;
+      }
+
+      if (isEdit) {
+        await api.put(`/vendors/${vendor._id}`, vendorData);
+      } else {
+        await api.post('/vendors', vendorData);
+      }
+      
       onSaved();
       onClose();
-    } catch (e) { setErr(e.response?.data?.message || 'Failed to save vendor.'); }
-    finally { setSaving(false); }
+    } catch (e) { 
+      setErr(e.response?.data?.message || 'Failed to save vendor.'); 
+    } finally { 
+      setSaving(false); 
+    }
   };
 
   return (
@@ -70,6 +126,49 @@ function VendorModal({ vendor, onClose, onSaved }) {
             <div><Label c="City" /><input value={form.address?.city || ''} onChange={e => setAddr('city', e.target.value)} placeholder="Mumbai" className={Input} /></div>
             <div><Label c="State" /><input value={form.address?.state || ''} onChange={e => setAddr('state', e.target.value)} placeholder="Maharashtra" className={Input} /></div>
           </div>
+
+          {/* Portal Access Section - Only show for new vendors */}
+          {!isEdit && (
+            <>
+              <div style={{ borderTop: `1px solid ${C.border}`, margin: '20px 0' }} />
+              
+              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: '#FEF9F0', border: '1px solid #F0E5CC' }}>
+                <div>
+                  <p className="text-[13px] font-semibold mb-0.5" style={{ color: C.charcoal }}>Create Portal Access</p>
+                  <p className="text-[11px]" style={{ color: C.muted }}>Allow this vendor to log in and submit quotations</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" checked={createPortal} onChange={e => setCreatePortal(e.target.checked)} className="sr-only peer" />
+                  <div className="w-11 h-6 rounded-full peer transition-colors peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" 
+                       style={{ background: createPortal ? C.gold : '#D1D5DB' }} />
+                </label>
+              </div>
+
+              {createPortal && (
+                <div className="grid grid-cols-2 gap-3 p-4 rounded-xl" style={{ background: '#FAFAF8', border: `1px solid ${C.border}` }}>
+                  <div className="col-span-2">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="material-symbols-outlined text-[16px]" style={{ color: C.gold }}>lock</span>
+                      <p className="text-[12px] font-bold uppercase tracking-wider" style={{ color: C.muted }}>Login Credentials</p>
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <Label c="Email (Username)" />
+                    <input type="email" value={form.email} disabled className={Input + ' bg-gray-50'} />
+                    <p className="text-[10px] mt-1" style={{ color: C.muted }}>Email will be used as username</p>
+                  </div>
+                  <div>
+                    <Label c="Password *" />
+                    <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 8 characters" className={Input} />
+                  </div>
+                  <div>
+                    <Label c="Confirm Password *" />
+                    <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter password" className={Input} />
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
 
         <div className="flex justify-end gap-3 px-6 py-4 rounded-b-2xl" style={{ borderTop: `1px solid ${C.border}`, background: C.ivory }}>
@@ -117,6 +216,103 @@ export default function VendorManagement() {
       await api.patch(`/vendors/${v._id}/status`, { status: newStatus });
       fetch();
     } catch (e) { console.error(e); }
+  };
+
+  const [grantAccessModal, setGrantAccessModal] = useState(null);
+
+  const GrantAccessModal = ({ vendor, onClose, onSaved }) => {
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [saving, setSaving] = useState(false);
+    const [err, setErr] = useState('');
+
+    const submit = async () => {
+      setErr('');
+      if (!password || !confirmPassword) {
+        setErr('Both password fields are required.');
+        return;
+      }
+      if (password.length < 8) {
+        setErr('Password must be at least 8 characters long.');
+        return;
+      }
+      if (password !== confirmPassword) {
+        setErr('Passwords do not match.');
+        return;
+      }
+
+      setSaving(true);
+      try {
+        // Create user account
+        const userRes = await api.post('/auth/signup', {
+          name: vendor.contactPerson,
+          email: vendor.email,
+          password: password,
+          role: 'vendor',
+          company: vendor.companyName,
+          phone: vendor.phone,
+        });
+        const linkedUserId = userRes.data?.user?._id;
+
+        // Update vendor with linkedUserId
+        await api.put(`/vendors/${vendor._id}`, { ...vendor, linkedUserId });
+        
+        onSaved();
+        onClose();
+      } catch (e) {
+        setErr(e.response?.data?.message || 'Failed to grant portal access.');
+      } finally {
+        setSaving(false);
+      }
+    };
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+        <div className="w-full max-w-md rounded-2xl" style={{ background: '#fff', boxShadow: '0 24px 60px rgba(28,28,28,0.18)' }}>
+          <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: `1px solid ${C.border}` }}>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: C.muted }}>Portal Access</p>
+              <h2 className="text-[20px] font-normal mt-0.5" style={{ fontFamily: "'DM Serif Display',serif" }}>Grant Login Access</h2>
+            </div>
+            <button onClick={onClose} className="hover:opacity-60 transition-opacity">
+              <span className="material-symbols-outlined text-[22px]" style={{ color: C.muted }}>close</span>
+            </button>
+          </div>
+
+          <div className="px-6 py-5 space-y-4">
+            {err && <div className="text-[13px] bg-red-50 border border-red-200 rounded-lg px-4 py-3" style={{ color: '#D94F3D' }}>{err}</div>}
+            
+            <div className="p-4 rounded-xl" style={{ background: '#FEF9F0', border: '1px solid #F0E5CC' }}>
+              <p className="text-[13px] font-semibold" style={{ color: C.charcoal }}>{vendor.companyName}</p>
+              <p className="text-[11px] mt-1" style={{ color: C.muted }}>Contact: {vendor.contactPerson} ({vendor.email})</p>
+            </div>
+
+            <div>
+              <Label c="Email (Username)" />
+              <input type="email" value={vendor.email} disabled className={Input + ' bg-gray-50'} />
+              <p className="text-[10px] mt-1" style={{ color: C.muted }}>Email will be used as username</p>
+            </div>
+            
+            <div>
+              <Label c="Password *" />
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 8 characters" className={Input} />
+            </div>
+            
+            <div>
+              <Label c="Confirm Password *" />
+              <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter password" className={Input} />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 px-6 py-4 rounded-b-2xl" style={{ borderTop: `1px solid ${C.border}`, background: C.ivory }}>
+            <button onClick={onClose} className="px-5 py-2.5 rounded-lg text-[13px] font-semibold border transition-colors hover:bg-white" style={{ borderColor: C.border, color: C.muted }}>Cancel</button>
+            <button onClick={submit} disabled={saving} className="px-5 py-2.5 rounded-lg text-[13px] font-bold disabled:opacity-50 transition-opacity" style={{ background: C.gold, color: C.charcoal }}>
+              {saving ? 'Granting…' : 'Grant Access'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
@@ -181,19 +377,19 @@ export default function VendorManagement() {
           <table className="w-full border-collapse">
             <thead>
               <tr style={{ background: '#FAFAF8', borderBottom: `1px solid ${C.border}` }}>
-                {['Vendor ID','Company Name','Category','Contact','Status','Actions'].map((h,i) => (
-                  <th key={h} className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.07em]" style={{ color: C.muted, textAlign: i===5?'right':'left' }}>{h}</th>
+                {['Vendor ID','Company Name','Category','Contact','Portal Access','Status','Actions'].map((h,i) => (
+                  <th key={h} className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.07em]" style={{ color: C.muted, textAlign: i===6?'right':'left' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {loading && [1,2,3,4,5].map(i => (
                 <tr key={i} style={{ borderBottom: '1px solid #F0EDE8' }}>
-                  {[1,2,3,4,5,6].map(j => <td key={j} className="px-5 py-4"><div className="h-4 rounded animate-pulse" style={{ background: '#F0EDE8', width: '70%' }} /></td>)}
+                  {[1,2,3,4,5,6,7].map(j => <td key={j} className="px-5 py-4"><div className="h-4 rounded animate-pulse" style={{ background: '#F0EDE8', width: '70%' }} /></td>)}
                 </tr>
               ))}
               {!loading && vendors.length === 0 && (
-                <tr><td colSpan={6} className="px-5 py-16 text-center">
+                <tr><td colSpan={7} className="px-5 py-16 text-center">
                   <span className="material-symbols-outlined text-[48px] block mb-3" style={{ color: '#C4C7C7' }}>storefront</span>
                   <p className="text-[13px] font-medium" style={{ color: C.muted }}>No vendors found</p>
                   <button onClick={() => setModal({})} className="mt-2 text-[13px] font-semibold hover:underline" style={{ color: '#745b20' }}>Onboard your first vendor →</button>
@@ -202,6 +398,8 @@ export default function VendorManagement() {
               {!loading && vendors.map(v => {
                 const [catBg, catFg] = CAT_COLOR[v.category] || ['#F1F5F9','#475569'];
                 const statusColor = v.status === 'active' ? ['#DCFCE7','#166534'] : v.status === 'inactive' ? ['#F1F5F9','#6b7280'] : ['#FEF3C7','#92400E'];
+                const hasPortalAccess = !!v.linkedUserId;
+                
                 return (
                   <tr key={v._id} style={{ borderBottom: '1px solid #F0EDE8' }}
                       onMouseEnter={e => e.currentTarget.style.background='#FDFCFA'}
@@ -217,6 +415,19 @@ export default function VendorManagement() {
                     <td className="px-5 py-4">
                       <p className="text-[12px] font-medium" style={{ color: C.charcoal }}>{v.contactPerson}</p>
                       <p className="text-[11px]" style={{ color: C.muted }}>{v.phone}</p>
+                    </td>
+                    <td className="px-5 py-4">
+                      {hasPortalAccess ? (
+                        <div className="flex items-center gap-1.5">
+                          <span className="material-symbols-outlined text-[14px]" style={{ color: '#166534' }}>check_circle</span>
+                          <span className="text-[11px] font-semibold" style={{ color: '#166534' }}>Enabled</span>
+                        </div>
+                      ) : (
+                        <button onClick={() => setGrantAccessModal(v)} className="flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-[#FEF9F0] transition-colors group">
+                          <span className="material-symbols-outlined text-[14px]" style={{ color: C.muted }}>lock</span>
+                          <span className="text-[11px] font-semibold group-hover:underline" style={{ color: C.muted }}>Grant Access</span>
+                        </button>
+                      )}
                     </td>
                     <td className="px-5 py-4">
                       <span className="text-[11px] font-bold uppercase rounded-full px-2.5 py-0.5" style={{ background: statusColor[0], color: statusColor[1] }}>{v.status}</span>
@@ -265,6 +476,7 @@ export default function VendorManagement() {
       </div>
 
       {modal !== null && <VendorModal vendor={modal?._id ? modal : null} onClose={() => setModal(null)} onSaved={fetch} />}
+      {grantAccessModal && <GrantAccessModal vendor={grantAccessModal} onClose={() => setGrantAccessModal(null)} onSaved={fetch} />}
     </div>
   );
 }

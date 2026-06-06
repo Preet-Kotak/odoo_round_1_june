@@ -8,13 +8,14 @@ const { createNotification } = require('../utils/notificationService');
 // GET /api/approvals
 const getApprovals = async (req, res, next) => {
   try {
-    const { status = 'pending', page = 1, limit = 20 } = req.query;
+    const { decision = 'pending', page = 1, limit = 20 } = req.query;
     const query = { assignedTo: req.user.userId };
-    if (status) query.decision = status;
+    if (decision) query.decision = decision;
 
     const total = await Approval.countDocuments(query);
     const approvals = await Approval.find(query)
       .populate('requestedBy', 'name email')
+      .populate('assignedTo', 'name email')
       .skip((page - 1) * limit)
       .limit(Number(limit))
       .sort({ createdAt: -1 });

@@ -11,7 +11,7 @@ router.use(protect);
 
 router.get('/', authorize(ROLES.ADMIN, ROLES.OFFICER, ROLES.MANAGER), getInvoices);
 router.post('/', authorize(ROLES.OFFICER), generateInvoice);
-router.get('/:id/pdf', downloadInvoicePdf);
+router.get('/:id/pdf', authorize(ROLES.ADMIN, ROLES.OFFICER, ROLES.MANAGER, ROLES.VENDOR), downloadInvoicePdf);
 router.post('/:id/email', authorize(ROLES.OFFICER, ROLES.ADMIN), sendInvoiceEmail);
 router.get('/:id', getInvoiceById);
 router.patch('/:id/approve', authorize(ROLES.MANAGER, ROLES.ADMIN), approveInvoice);

@@ -20,11 +20,33 @@ function InvoiceDetail({ invoice, onClose, onUpdate }) {
     catch (e) { alert(e.response?.data?.message || 'Action failed.'); }
     finally { setActing(false); }
   };
+  
   const sendEmail = async () => {
     setActing(true);
     try { await api.post(`/invoices/${invoice._id}/email`); alert('Invoice sent via email!'); }
     catch (e) { alert(e.response?.data?.message || 'Failed to send email.'); }
     finally { setActing(false); }
+  };
+
+  const downloadPDF = async () => {
+    setActing(true);
+    try {
+      const response = await api.get(`/invoices/${invoice._id}/pdf`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${invoice.invoiceNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      alert(e.response?.data?.message || 'Failed to download PDF.');
+    } finally {
+      setActing(false);
+    }
   };
 
   const [sbg, sfg] = INV_STATUS[invoice.status] || ['#F1F5F9','#475569'];
@@ -85,11 +107,11 @@ function InvoiceDetail({ invoice, onClose, onUpdate }) {
 
         <div className="flex flex-wrap justify-end gap-3 px-6 py-4 rounded-b-2xl" style={{ borderTop:`1px solid ${C.border}`, background:C.ivory }}>
           <button onClick={onClose} className="px-4 py-2.5 rounded-lg text-[13px] font-semibold border hover:bg-white" style={{ borderColor:C.border, color:C.muted }}>Close</button>
-          <a href={`http://localhost:5000/api/invoices/${invoice._id}/pdf`} target="_blank" rel="noreferrer"
-             className="px-4 py-2.5 rounded-lg text-[13px] font-semibold border flex items-center gap-1.5 hover:bg-[#EEECE8] transition-colors"
+          <button onClick={downloadPDF} disabled={acting}
+             className="px-4 py-2.5 rounded-lg text-[13px] font-semibold border flex items-center gap-1.5 hover:bg-[#EEECE8] transition-colors disabled:opacity-50"
              style={{ borderColor:C.border, color:C.charcoal }}>
             <span className="material-symbols-outlined text-[15px]">download</span> PDF
-          </a>
+          </button>
           <button onClick={sendEmail} disabled={acting} className="px-4 py-2.5 rounded-lg text-[13px] font-semibold border flex items-center gap-1.5 disabled:opacity-50 hover:bg-[#EEECE8]"
                   style={{ borderColor:C.border, color:C.charcoal }}>
             <span className="material-symbols-outlined text-[15px]">email</span> Email

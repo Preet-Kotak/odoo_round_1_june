@@ -22,6 +22,27 @@ function PODetail({ po, onClose, onUpdate }) {
     finally { setActing(false); }
   };
 
+  const downloadPDF = async () => {
+    setActing(true);
+    try {
+      const response = await api.get(`/purchase-orders/${po._id}/pdf`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${po.poNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      alert(e.response?.data?.message || 'Failed to download PDF.');
+    } finally {
+      setActing(false);
+    }
+  };
+
   const [sbg, sfg] = PO_STATUS[po.status] || ['#F1F5F9','#475569'];
 
   return (
@@ -78,11 +99,11 @@ function PODetail({ po, onClose, onUpdate }) {
 
         <div className="flex justify-end gap-3 px-6 py-4 rounded-b-2xl" style={{ borderTop:`1px solid ${C.border}`, background: C.ivory }}>
           <button onClick={onClose} className="px-5 py-2.5 rounded-lg text-[13px] font-semibold border hover:bg-white" style={{ borderColor:C.border, color:C.muted }}>Close</button>
-          <a href={`/api/purchase-orders/${po._id}/pdf`} target="_blank" rel="noreferrer"
-             className="px-5 py-2.5 rounded-lg text-[13px] font-semibold border flex items-center gap-2 hover:bg-[#EEECE8] transition-colors"
+          <button onClick={downloadPDF} disabled={acting}
+             className="px-5 py-2.5 rounded-lg text-[13px] font-semibold border flex items-center gap-2 hover:bg-[#EEECE8] transition-colors disabled:opacity-50"
              style={{ borderColor:C.border, color:C.charcoal }}>
             <span className="material-symbols-outlined text-[15px]">download</span> PDF
-          </a>
+          </button>
           {po.status === 'draft' && (
             <button onClick={() => act('confirm')} disabled={acting}
                     className="px-5 py-2.5 rounded-lg text-[13px] font-bold disabled:opacity-50 hover:opacity-90"

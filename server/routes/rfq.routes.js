@@ -10,12 +10,12 @@ const {
 router.use(protect);
 
 router.get('/', authorize(ROLES.ADMIN, ROLES.OFFICER), getRFQs);
-router.post('/', authorize(ROLES.OFFICER), createRFQ);
+router.post('/', authorize(ROLES.OFFICER, ROLES.ADMIN), createRFQ);
 router.get('/:id', getRFQById);
-router.put('/:id', authorize(ROLES.OFFICER), updateRFQ);
-router.patch('/:id/send', authorize(ROLES.OFFICER), sendRFQ);
-router.patch('/:id/close', authorize(ROLES.OFFICER), closeRFQ);
+router.put('/:id', authorize(ROLES.OFFICER, ROLES.ADMIN), updateRFQ);
+router.patch('/:id/send', authorize(ROLES.OFFICER, ROLES.ADMIN), sendRFQ);
+router.patch('/:id/close', authorize(ROLES.OFFICER, ROLES.ADMIN), closeRFQ);
 router.patch('/:id/cancel', authorize(ROLES.OFFICER, ROLES.ADMIN), cancelRFQ);
-router.post('/:id/duplicate', authorize(ROLES.OFFICER), duplicateRFQ);
+router.post('/:id/duplicate', authorize(ROLES.OFFICER, ROLES.ADMIN), duplicateRFQ);
 
 module.exports = router;
