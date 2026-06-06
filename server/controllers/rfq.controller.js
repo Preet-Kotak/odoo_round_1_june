@@ -24,7 +24,22 @@ const getRFQs = async (req, res, next) => {
       .limit(Number(limit))
       .sort({ createdAt: -1 });
 
-    res.json({ success: true, total, page: Number(page), data: rfqs });
+    // Add quotation count for each RFQ
+    const Quotation = require('../models/Quotation');
+    const rfqsWithCounts = await Promise.all(
+      rfqs.map(async (rfq) => {
+        const quotationCount = await Quotation.countDocuments({ 
+          rfqId: rfq._id, 
+          status: { $in: ['submitted', 'under_review', 'selected', 'approved'] }
+        });
+        return {
+          ...rfq.toObject(),
+          quotationCount
+        };
+      })
+    );
+
+    res.json({ success: true, total, page: Number(page), data: rfqsWithCounts });
   } catch (err) {
     next(err);
   }
