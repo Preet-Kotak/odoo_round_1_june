@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #F9F7F3; /* Institutional Minimalism Base Ivory */
+    color: #1C1C1C;
+    @apply font-body-main text-body-main antialiased;
+  }
+}
+
+@layer components {
+  .paper-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E5E1D8;
+    border-radius: 20px;
+    box-shadow: 0px 4px 20px rgba(28, 28, 28, 0.04);
+    transition: box-shadow 0.3s ease;
+  }
+  .paper-card:hover {
+    box-shadow: 0px 8px 30px rgba(28, 28, 28, 0.08);
+  }
+  
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}
+
+.graph-line {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: dash 3s linear forwards;
+}
+
+@keyframes dash {
+    to { stroke-dashoffset: 0; }
+}
