@@ -15,9 +15,7 @@ const Invoices = () => {
       setInvoices(res.data?.data || []);
     } catch (err) {
       console.error(err);
-      setInvoices([
-        { _id: '1', invoiceNumber: 'INV-2024-001', vendorName: 'Acme Corp', grandTotal: 15400, status: 'pending', issueDate: '2026-06-01' },
-      ]);
+      setInvoices([]);
     } finally {
       setLoading(false);
     }
@@ -54,7 +52,7 @@ const Invoices = () => {
                 <tr key={inv._id} className="hover:bg-[#F9F7F3] transition-colors group">
                   <td className="px-6 py-4 text-on-primary-container">{inv.invoiceNumber}</td>
                   <td className="px-6 py-4 font-semibold text-primary">{inv.vendorName || inv.vendorId?.companyName || 'Unknown Vendor'}</td>
-                  <td className="px-6 py-4 tabular-nums font-semibold">${inv.grandTotal?.toLocaleString() || 0}</td>
+                  <td className="px-6 py-4 tabular-nums font-semibold">₹{inv.grandTotal?.toLocaleString() || 0}</td>
                   <td className="px-6 py-4 tabular-nums">{new Date(inv.issueDate || inv.createdAt).toLocaleDateString()}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">

@@ -12,10 +12,15 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/auth/signup', formData);
-      navigate('/login');
+      const response = await api.post('/auth/signup', formData);
+      const { accessToken, user } = response.data;
+      localStorage.setItem('token', accessToken);
+      localStorage.setItem('user', JSON.stringify(user));
+      navigate('/');
     } catch (err) {
-      setError(err.response?.data?.error?.message || 'Registration failed');
+      console.error('Register error response:', err.response?.data);
+      const message = err.response?.data?.error?.message || err.response?.data?.message || err.message || 'Registration failed';
+      setError(message);
     } finally {
       setLoading(false);
     }

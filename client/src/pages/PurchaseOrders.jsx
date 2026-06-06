@@ -15,9 +15,7 @@ const PurchaseOrders = () => {
       setPos(res.data?.data || []);
     } catch (err) {
       console.error(err);
-      setPos([
-        { _id: '1', poNumber: 'PO-2024-001', vendorName: 'Acme Corp', grandTotal: 15400, status: 'confirmed', expectedDelivery: '2026-08-01' },
-      ]);
+      setPos([]);
     } finally {
       setLoading(false);
     }
@@ -54,7 +52,7 @@ const PurchaseOrders = () => {
                 <tr key={po._id} className="hover:bg-[#F9F7F3] transition-colors group">
                   <td className="px-6 py-4 text-on-primary-container">{po.poNumber}</td>
                   <td className="px-6 py-4 font-semibold text-primary">{po.vendorName || 'Unknown Vendor'}</td>
-                  <td className="px-6 py-4 tabular-nums font-semibold">${po.grandTotal.toLocaleString()}</td>
+                  <td className="px-6 py-4 tabular-nums font-semibold">₹{po.grandTotal.toLocaleString()}</td>
                   <td className="px-6 py-4 tabular-nums">{new Date(po.expectedDelivery).toLocaleDateString()}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">

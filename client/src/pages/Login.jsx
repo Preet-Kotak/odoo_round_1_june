@@ -12,14 +12,20 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     setError('');
     setLoading(true);
-    const result = await login(email, password);
-    setLoading(false);
-    if (result.success) {
-      navigate('/');
-    } else {
-      setError(result.error);
+    try {
+      const result = await login(email, password);
+      if (result.success) {
+        navigate('/');
+      } else {
+        setError(result.error || 'Login failed. Please try again.');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 

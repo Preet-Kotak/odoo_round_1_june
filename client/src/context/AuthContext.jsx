@@ -39,7 +39,9 @@ export const AuthProvider = ({ children }) => {
       setUser(user);
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.response?.data?.error?.message || "Login failed" };
+      console.error('Login error response:', error.response?.data);
+      const message = error.response?.data?.error?.message || error.response?.data?.message || error.message || "Login failed";
+      return { success: false, error: message };
     }
   };
 

@@ -15,12 +15,7 @@ const VendorManagement = () => {
       setVendors(res.data?.data || []);
     } catch (err) {
       console.error(err);
-      // Mock data based on Stitch design
-      setVendors([
-        { _id: '1', vendorId: 'VN-82934', companyName: 'Lumina Logistics Group', category: 'Logistics', status: 'active' },
-        { _id: '2', vendorId: 'VN-41209', companyName: 'Apex IT Solutions', category: 'IT', status: 'pending' },
-        { _id: '3', vendorId: 'VN-12833', companyName: 'SteelCore Manufacturing', category: 'Raw Materials', status: 'flagged' }
-      ]);
+      setVendors([]);
     } finally {
       setLoading(false);
     }
@@ -64,9 +59,9 @@ const VendorManagement = () => {
         <div className="paper-card p-4 flex flex-col justify-between">
           <span className="font-label-caps text-label-caps text-on-primary-container mb-2 uppercase">Total Spend Range</span>
           <div className="flex items-center gap-2 font-title-sm text-title-sm">
-            <span>$0</span>
+            <span>₹0</span>
             <input className="w-full accent-secondary" type="range" />
-            <span>$1M+</span>
+            <span>₹1M+</span>
           </div>
         </div>
         <div className="paper-card p-4 bg-primary text-on-primary flex flex-col justify-center">

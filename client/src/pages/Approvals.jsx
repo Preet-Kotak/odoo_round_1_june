@@ -15,9 +15,7 @@ const Approvals = () => {
       setApprovals(res.data?.data || []);
     } catch (err) {
       console.error(err);
-      setApprovals([
-        { _id: '1', referenceType: 'quotation', requestedByName: 'John Doe', decision: 'pending', createdAt: '2026-06-01' },
-      ]);
+      setApprovals([]);
     } finally {
       setLoading(false);
     }

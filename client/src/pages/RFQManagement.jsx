@@ -15,10 +15,7 @@ const RFQManagement = () => {
       setRfqs(res.data?.data || []);
     } catch (err) {
       console.error(err);
-      setRfqs([
-        { _id: '1', rfqNumber: 'RFQ-2024-001', title: 'Office Laptops Q3', category: 'IT', status: 'open', deadline: '2026-07-01' },
-        { _id: '2', rfqNumber: 'RFQ-2024-002', title: 'Warehouse Racking System', category: 'Logistics', status: 'draft', deadline: '2026-07-15' },
-      ]);
+      setRfqs([]);
     } finally {
       setLoading(false);
     }

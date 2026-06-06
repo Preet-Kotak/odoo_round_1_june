@@ -15,10 +15,7 @@ const QuotationComparison = () => {
       setQuotations(res.data?.data || []);
     } catch (err) {
       console.error(err);
-      setQuotations([
-        { _id: '1', vendorName: 'Acme Corp', grandTotal: 15400, status: 'under_review', validityPeriod: 30 },
-        { _id: '2', vendorName: 'TechSource', grandTotal: 14800, status: 'selected', validityPeriod: 15 },
-      ]);
+      setQuotations([]);
     } finally {
       setLoading(false);
     }
@@ -54,7 +51,7 @@ const QuotationComparison = () => {
               ) : quotations.map(q => (
                 <tr key={q._id} className="hover:bg-[#F9F7F3] transition-colors group">
                   <td className="px-6 py-4 font-semibold text-primary">{q.vendorName || 'Unknown Vendor'}</td>
-                  <td className="px-6 py-4 tabular-nums font-semibold">${q.grandTotal.toLocaleString()}</td>
+                  <td className="px-6 py-4 tabular-nums font-semibold">₹{q.grandTotal.toLocaleString()}</td>
                   <td className="px-6 py-4 tabular-nums">{q.validityPeriod}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">

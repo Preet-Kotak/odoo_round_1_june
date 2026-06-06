@@ -30,6 +30,10 @@ export const Layout = () => {
     navigate('/login');
   };
 
+  const isInternal = ['admin', 'procurement_officer', 'manager'].includes(user?.role);
+  const isManagerOrAdmin = ['admin', 'manager'].includes(user?.role);
+  const isAdmin = user?.role === 'admin';
+
   return (
     <div className="flex bg-background min-h-screen">
       {/* Side Navigation */}
@@ -41,25 +45,32 @@ export const Layout = () => {
         
         <nav className="flex-1 space-y-2">
           <SidebarItem icon="dashboard" label="Dashboard" to="/" isActive={location.pathname === '/'} />
-          <SidebarItem icon="factory" label="Vendors" to="/vendors" isActive={location.pathname.startsWith('/vendors')} />
-          <SidebarItem icon="request_quote" label="RFQs" to="/rfqs" isActive={location.pathname.startsWith('/rfqs')} />
+          {isInternal && <SidebarItem icon="factory" label="Vendors" to="/vendors" isActive={location.pathname.startsWith('/vendors')} />}
+          {isInternal && <SidebarItem icon="request_quote" label="RFQs" to="/rfqs" isActive={location.pathname.startsWith('/rfqs')} />}
           <SidebarItem icon="description" label="Quotations" to="/quotations" isActive={location.pathname.startsWith('/quotations')} />
-          <SidebarItem icon="shopping_cart" label="Purchase Orders" to="/pos" isActive={location.pathname.startsWith('/pos')} />
+          {isInternal && <SidebarItem icon="shopping_cart" label="Purchase Orders" to="/pos" isActive={location.pathname.startsWith('/pos')} />}
           <SidebarItem icon="receipt_long" label="Invoices" to="/invoices" isActive={location.pathname.startsWith('/invoices')} />
-          <SidebarItem icon="fact_check" label="Approvals" to="/approvals" isActive={location.pathname.startsWith('/approvals')} />
+          {isManagerOrAdmin && <SidebarItem icon="fact_check" label="Approvals" to="/approvals" isActive={location.pathname.startsWith('/approvals')} />}
+          {isManagerOrAdmin && <SidebarItem icon="bar_chart" label="Reports" to="/reports" isActive={location.pathname.startsWith('/reports')} />}
+          {isAdmin && <SidebarItem icon="manage_search" label="Audit Trail" to="/audit-trail" isActive={location.pathname.startsWith('/audit-trail')} />}
         </nav>
 
         <div className="mt-auto border-t border-on-primary-container/20 pt-6">
           <div className="flex items-center justify-between mb-4 px-2">
-            <span className="text-sm font-bold text-on-primary">{user?.name || 'Director of Procurement'}</span>
+            <div>
+              <span className="text-sm font-bold text-on-primary block">{user?.name}</span>
+              <span className="text-xs text-on-primary-container capitalize">{user?.role?.replace('_', ' ')}</span>
+            </div>
             <button onClick={handleLogout} className="text-on-primary-container hover:text-error transition-colors" title="Log out">
               <span className="material-symbols-outlined">logout</span>
             </button>
           </div>
-          <button className="w-full flex items-center justify-center gap-2 bg-[#C6A664] text-[#1C1C1C] font-bold py-3 rounded-md hover:bg-[#B39352] transition-colors">
-            <span className="material-symbols-outlined">add</span>
-            New Requisition
-          </button>
+          {isInternal && (
+            <button className="w-full flex items-center justify-center gap-2 bg-[#C6A664] text-[#1C1C1C] font-bold py-3 rounded-md hover:bg-[#B39352] transition-colors">
+              <span className="material-symbols-outlined">add</span>
+              New Requisition
+            </button>
+          )}
         </div>
       </aside>
 
