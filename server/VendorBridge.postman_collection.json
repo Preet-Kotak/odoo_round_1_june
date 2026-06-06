@@ -1,0 +1,668 @@
+{
+  "info": {
+    "name": "VendorBridge API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:5000/health"
+      }
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Signup",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/signup",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@vendorbridge.com\",\n  \"password\": \"Admin@1234\",\n  \"role\": \"admin\",\n  \"company\": \"VendorBridge Inc\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Signup - Procurement Officer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/signup",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Procurement Officer\",\n  \"email\": \"officer@vendorbridge.com\",\n  \"password\": \"Officer@1234\",\n  \"role\": \"procurement_officer\",\n  \"company\": \"VendorBridge Inc\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Signup - Manager",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/signup",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Manager User\",\n  \"email\": \"manager@vendorbridge.com\",\n  \"password\": \"Manager@1234\",\n  \"role\": \"manager\",\n  \"company\": \"VendorBridge Inc\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Signup - Vendor User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/signup",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Vendor User\",\n  \"email\": \"vendor@techsupplies.com\",\n  \"password\": \"Vendor@1234\",\n  \"role\": \"vendor\",\n  \"company\": \"Tech Supplies Ltd\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login - Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.accessToken) pm.collectionVariables.set('token', res.accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@vendorbridge.com\",\n  \"password\": \"Admin@1234\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login - Officer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.accessToken) pm.collectionVariables.set('token', res.accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"officer@vendorbridge.com\",\n  \"password\": \"Officer@1234\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login - Manager",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.accessToken) pm.collectionVariables.set('token', res.accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"manager@vendorbridge.com\",\n  \"password\": \"Manager@1234\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/forgot-password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@vendorbridge.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vendors",
+      "item": [
+        {
+          "name": "Create Vendor",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/vendors",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Tech Supplies Ltd\",\n  \"category\": \"IT\",\n  \"contactPerson\": \"John Smith\",\n  \"email\": \"contact@techsupplies.com\",\n  \"phone\": \"9876543210\",\n  \"gstNumber\": \"27AABCU9603R1ZX\",\n  \"panNumber\": \"AABCU9603R\",\n  \"paymentTerms\": \"Net30\",\n  \"address\": {\n    \"street\": \"123 Tech Street\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"country\": \"India\",\n    \"postalCode\": \"400001\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Vendor 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/vendors",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Office Pro Supplies\",\n  \"category\": \"Services\",\n  \"contactPerson\": \"Priya Sharma\",\n  \"email\": \"contact@officepro.com\",\n  \"phone\": \"9123456789\",\n  \"gstNumber\": \"29AABCU9603R1ZY\",\n  \"paymentTerms\": \"Net15\",\n  \"address\": {\n    \"city\": \"Bangalore\",\n    \"state\": \"Karnataka\",\n    \"country\": \"India\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Vendors",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/vendors"
+          }
+        },
+        {
+          "name": "Get Vendors - Filter by Status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/vendors?status=active&category=IT",
+              "query": [
+                { "key": "status", "value": "active" },
+                { "key": "category", "value": "IT" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Vendor By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/vendors/VENDOR_ID_HERE"
+          }
+        },
+        {
+          "name": "Update Vendor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/vendors/VENDOR_ID_HERE",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"9999999999\",\n  \"paymentTerms\": \"Net60\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Deactivate Vendor",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/vendors/VENDOR_ID_HERE/status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"inactive\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "RFQs",
+      "item": [
+        {
+          "name": "Create RFQ",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/rfqs",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Office Laptops Procurement\",\n  \"description\": \"Need 20 laptops for new employees\",\n  \"category\": \"IT\",\n  \"priority\": \"high\",\n  \"deadline\": \"2026-07-01T00:00:00.000Z\",\n  \"assignedVendors\": [],\n  \"lineItems\": [\n    {\n      \"itemName\": \"Laptop 15 inch\",\n      \"description\": \"Intel i7, 16GB RAM, 512GB SSD\",\n      \"quantity\": 20,\n      \"unitOfMeasure\": \"units\",\n      \"estimatedPrice\": 80000\n    },\n    {\n      \"itemName\": \"Laptop Bag\",\n      \"description\": \"15 inch compatible bag\",\n      \"quantity\": 20,\n      \"unitOfMeasure\": \"units\",\n      \"estimatedPrice\": 1500\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All RFQs",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/rfqs"
+          }
+        },
+        {
+          "name": "Get RFQ By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/rfqs/RFQ_ID_HERE"
+          }
+        },
+        {
+          "name": "Update RFQ (add vendors)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/rfqs/RFQ_ID_HERE",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignedVendors\": [\"VENDOR_ID_HERE\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "Send RFQ to Vendors",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/rfqs/RFQ_ID_HERE/send"
+          }
+        },
+        {
+          "name": "Close RFQ",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/rfqs/RFQ_ID_HERE/close"
+          }
+        },
+        {
+          "name": "Duplicate RFQ",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/rfqs/RFQ_ID_HERE/duplicate"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quotations",
+      "item": [
+        {
+          "name": "Submit Quotation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/quotations",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rfqId\": \"RFQ_ID_HERE\",\n  \"vendorId\": \"VENDOR_ID_HERE\",\n  \"lineItems\": [\n    {\n      \"itemName\": \"Laptop 15 inch\",\n      \"quantity\": 20,\n      \"unitPrice\": 75000\n    },\n    {\n      \"itemName\": \"Laptop Bag\",\n      \"quantity\": 20,\n      \"unitPrice\": 1200\n    }\n  ],\n  \"discount\": 5,\n  \"taxRate\": 18,\n  \"paymentTerms\": \"Net30\",\n  \"deliveryTimeline\": \"2026-07-15T00:00:00.000Z\",\n  \"validityPeriod\": 30,\n  \"notes\": \"Includes 1 year warranty on all laptops\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Quotations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/quotations"
+          }
+        },
+        {
+          "name": "Get Quotation By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/quotations/QUOTATION_ID_HERE"
+          }
+        },
+        {
+          "name": "Compare Quotations for RFQ",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/quotations/rfq/RFQ_ID_HERE/compare"
+          }
+        },
+        {
+          "name": "Select Quotation for Approval",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/quotations/QUOTATION_ID_HERE/select"
+          }
+        },
+        {
+          "name": "Reject Quotation",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/quotations/QUOTATION_ID_HERE/reject",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejectionReason\": \"Price too high compared to market rate\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Approvals",
+      "item": [
+        {
+          "name": "Get Pending Approvals",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/approvals"
+          }
+        },
+        {
+          "name": "Get Approval By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/approvals/APPROVAL_ID_HERE"
+          }
+        },
+        {
+          "name": "Approve",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/approvals/APPROVAL_ID_HERE/approve",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"remarks\": \"Approved. Good pricing and delivery timeline.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reject",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/approvals/APPROVAL_ID_HERE/reject",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"remarks\": \"Budget exceeded. Please renegotiate pricing.\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Purchase Orders",
+      "item": [
+        {
+          "name": "Create PO from Quotation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/purchase-orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quotationId\": \"QUOTATION_ID_HERE\",\n  \"expectedDelivery\": \"2026-07-20T00:00:00.000Z\",\n  \"deliveryAddress\": {\n    \"street\": \"456 Office Park\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"country\": \"India\",\n    \"postalCode\": \"400002\"\n  },\n  \"specialInstructions\": \"Deliver during business hours only\",\n  \"termsAndConditions\": \"Standard terms apply\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All POs",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/purchase-orders"
+          }
+        },
+        {
+          "name": "Get PO By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/purchase-orders/PO_ID_HERE"
+          }
+        },
+        {
+          "name": "Confirm PO",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/purchase-orders/PO_ID_HERE/confirm"
+          }
+        },
+        {
+          "name": "Send PO to Vendor",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/purchase-orders/PO_ID_HERE/send"
+          }
+        },
+        {
+          "name": "Download PO PDF",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/purchase-orders/PO_ID_HERE/pdf"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invoices",
+      "item": [
+        {
+          "name": "Generate Invoice from PO",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/invoices",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"poId\": \"PO_ID_HERE\",\n  \"dueDate\": \"2026-08-01T00:00:00.000Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Invoices",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/invoices"
+          }
+        },
+        {
+          "name": "Get Invoice By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/invoices/INVOICE_ID_HERE"
+          }
+        },
+        {
+          "name": "Approve Invoice",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/invoices/INVOICE_ID_HERE/approve"
+          }
+        },
+        {
+          "name": "Reject Invoice",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/invoices/INVOICE_ID_HERE/reject",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejectionReason\": \"Amount mismatch with PO\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Download Invoice PDF",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/invoices/INVOICE_ID_HERE/pdf"
+          }
+        },
+        {
+          "name": "Send Invoice Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/invoices/INVOICE_ID_HERE/email",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"vendor@techsupplies.com\",\n  \"subject\": \"Invoice from VendorBridge\",\n  \"message\": \"<p>Please find your invoice attached.</p>\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get My Notifications",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/notifications"
+          }
+        },
+        {
+          "name": "Mark All as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/notifications/read-all"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/reports/dashboard"
+          }
+        },
+        {
+          "name": "Spending Summary",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/reports/spending-summary"
+          }
+        },
+        {
+          "name": "Monthly Trends",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/reports/monthly-trends"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Activity Logs",
+      "item": [
+        {
+          "name": "Get Activity Logs (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/activity-logs"
+          }
+        },
+        {
+          "name": "Get Logs - Filter by recordType",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/activity-logs?recordType=vendor",
+              "query": [{ "key": "recordType", "value": "vendor" }]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
